@@ -1,0 +1,19 @@
+[package]
+name = "mtzip"
+version = "1.0.0"
+description = "A library for making zip files, focused on multithreading the process"
+authors = ["XXIV"]
+homepage = "https://github.com/thechampagne/libmtzip"
+repository = "https://github.com/thechampagne/libmtzip"
+readme = "README.md"
+license = "MIT"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "libmtzip"
+crate-type =["cdylib","staticlib"]
+
+[dependencies]
+mtzip = "0.5.0"
