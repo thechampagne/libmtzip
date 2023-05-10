@@ -16,7 +16,7 @@ cd libmtzip
 ```
 #### 3. Build the project
 ```
-cargo build
+cargo build --release
 ```
 
 ### API
