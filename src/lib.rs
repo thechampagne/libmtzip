@@ -96,7 +96,7 @@ unsafe extern "C" fn mtzip_zip_archive_compress(
     threads: usize,
 ) -> c_int {
     let zipper = &*((*zip_archive).zip_archive as *mut ZipArchive);
-    zipper.compress(threads);
+    zipper.compress_with_threads(threads);
     0
 }
 
@@ -116,9 +116,9 @@ unsafe extern "C" fn mtzip_zip_archive_write(
         Err(_) => return -1,
     };
     if threads == 0 {
-        zipper.write(&mut file, None);
+        zipper.write_with_threads(&mut file, 1);
     } else {
-        zipper.write(&mut file, Some(threads));
+        zipper.write_with_threads(&mut file, threads);
     }
     0
 }
