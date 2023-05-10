@@ -40,7 +40,11 @@ extern int mtzip_zip_archive_add_directory(mtzip_zip_archive_t* zip_archive, con
 
 extern int mtzip_zip_archive_compress(mtzip_zip_archive_t* zip_archive, size_t threads);
 
+extern int mtzip_zip_archive_compress_autothread(mtzip_zip_archive_t* zip_archive);
+
 extern int mtzip_zip_archive_write(mtzip_zip_archive_t* zip_archive, const char* file_name, size_t threads);
+
+extern int mtzip_zip_archive_write_autothread(mtzip_zip_archive_t* zip_archive, const char* file_name);
 
 extern void mtzip_zip_archive_clean(mtzip_zip_archive_t* zip_archive);
 
