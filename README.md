@@ -32,9 +32,13 @@ int mtzip_zip_archive_add_file_from_bytes(mtzip_zip_archive_t* zip_archive, uint
 
 int mtzip_zip_archive_add_directory(mtzip_zip_archive_t* zip_archive, const char* archive_name);
 
-int mtzip_zip_archive_compress(mtzip_zip_archive_t* zip_archive, size_t threads);
+int mtzip_zip_archive_compress(mtzip_zip_archive_t* zip_archive);
 
-int mtzip_zip_archive_write(mtzip_zip_archive_t* zip_archive, const char* file_name, size_t threads);
+int mtzip_zip_archive_compress_autothread(mtzip_zip_archive_t* zip_archive, size_t threads);
+
+int mtzip_zip_archive_write(mtzip_zip_archive_t* zip_archive, const char* file_name);
+
+int mtzip_zip_archive_write_autothread(mtzip_zip_archive_t* zip_archive, const char* file_name, size_t threads);
 
 void mtzip_zip_archive_clean(mtzip_zip_archive_t* zip_archive);
 ```
