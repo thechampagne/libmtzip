@@ -101,6 +101,15 @@ unsafe extern "C" fn mtzip_zip_archive_compress(
 }
 
 #[no_mangle]
+unsafe extern "C" fn mtzip_zip_archive_compress_autothread(
+    zip_archive: *mut mtzip_zip_archive_t,
+) -> c_int {
+    let zipper = &*((*zip_archive).zip_archive as *mut ZipArchive);
+    zipper.compress();
+    0
+}
+
+#[no_mangle]
 unsafe extern "C" fn mtzip_zip_archive_write(
     zip_archive: *mut mtzip_zip_archive_t,
     file_name: *const c_char,
@@ -120,6 +129,24 @@ unsafe extern "C" fn mtzip_zip_archive_write(
     } else {
         zipper.write_with_threads(&mut file, threads);
     }
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn mtzip_zip_archive_write_autothread(
+    zip_archive: *mut mtzip_zip_archive_t,
+    file_name: *const c_char,
+) -> c_int {
+    let file_name_rs = match CStr::from_ptr(file_name).to_str() {
+        Ok(v) => v,
+        Err(_) => return -1,
+    };
+    let zipper = &*((*zip_archive).zip_archive as *mut ZipArchive);
+    let mut file = match File::create(file_name_rs) {
+        Ok(v) => v,
+        Err(_) => return -1,
+    };
+    zipper.write(&mut file);
     0
 }
 
