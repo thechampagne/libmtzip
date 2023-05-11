@@ -28,7 +28,9 @@
 extern "C" {
 #endif
 
-typedef struct mtzip_zip_archive_t mtzip_zip_archive_t;
+typedef struct {
+  void* zip_archive;
+} mtzip_zip_archive_t;
 
 extern mtzip_zip_archive_t mtzip_zip_archive_default(void);
 
