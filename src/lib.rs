@@ -55,7 +55,7 @@ unsafe extern "C" fn mtzip_zip_archive_add_file(
         Err(_) => return -1,
     };
     let zipper = &*((*zip_archive).zip_archive as *mut ZipArchive);
-    zipper.add_file(fs_path_rs, archive_name_rs);
+    zipper.add_file(fs_path_rs.into(), archive_name_rs);
     0
 }
 
@@ -72,7 +72,7 @@ unsafe extern "C" fn mtzip_zip_archive_add_file_from_bytes(
         Err(_) => return -1,
     };
     let zipper = &*((*zip_archive).zip_archive as *mut ZipArchive);
-    zipper.add_file_from_slice(data_rs, archive_name_rs);
+    zipper.add_file_from_slice(data_rs, archive_name_rs.to_string());
     0
 }
 
@@ -86,7 +86,7 @@ unsafe extern "C" fn mtzip_zip_archive_add_directory(
         Err(_) => return -1,
     };
     let zipper = &*((*zip_archive).zip_archive as *mut ZipArchive);
-    zipper.add_directory(archive_name_rs);
+    zipper.add_directory(archive_name_rs.to_string());
     0
 }
 
