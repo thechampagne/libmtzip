@@ -16,4 +16,4 @@ name = "mtzip"
 crate-type =["cdylib","staticlib"]
 
 [dependencies]
-mtzip = "1.0.0"
+mtzip = "1.1.0"
