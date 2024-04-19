@@ -131,12 +131,15 @@ unsafe extern "C" fn mtzip_zip_archive_write(
         Ok(v) => v,
         Err(_) => return -1,
     };
-    if threads == 0 {
-        zipper.write_with_threads(&mut file, 1);
+    let result = if threads == 0 {
+        zipper.write_with_threads(&mut file, 1)
     } else {
-        zipper.write_with_threads(&mut file, threads);
+        zipper.write_with_threads(&mut file, threads)
+    };
+    match result {
+        Ok(()) => 0,
+        Err(_) => -1,
     }
-    0
 }
 
 #[no_mangle]
@@ -153,8 +156,10 @@ unsafe extern "C" fn mtzip_zip_archive_write_autothread(
         Ok(v) => v,
         Err(_) => return -1,
     };
-    zipper.write(&mut file);
-    0
+    match zipper.write(&mut file) {
+        Ok(()) => 0,
+        Err(_) => -1,
+    }
 }
 
 #[no_mangle]
