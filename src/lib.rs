@@ -1,31 +1,33 @@
 /*
-* Copyright (c) 2022 XXIV
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*/
+ * Copyright (c) 2022 XXIV
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+use std::{
+    ffi::CStr,
+    fs::File,
+    os::raw::{c_char, c_int, c_void},
+    path::Path,
+    slice,
+};
+
 use mtzip::ZipArchive;
-use std::ffi::CStr;
-use std::fs::File;
-use std::os::raw::c_char;
-use std::os::raw::c_int;
-use std::os::raw::c_void;
-use std::slice;
 
 #[repr(C)]
 struct mtzip_zip_archive_t {
@@ -55,7 +57,12 @@ unsafe extern "C" fn mtzip_zip_archive_add_file(
         Err(_) => return -1,
     };
     let zipper = &*((*zip_archive).zip_archive as *mut ZipArchive);
-    zipper.add_file(fs_path_rs.into(), archive_name_rs);
+    zipper.add_file_from_fs(
+        Path::new(fs_path_rs),
+        archive_name_rs.to_owned(),
+        None,
+        None,
+    );
     0
 }
 
@@ -72,7 +79,7 @@ unsafe extern "C" fn mtzip_zip_archive_add_file_from_bytes(
         Err(_) => return -1,
     };
     let zipper = &*((*zip_archive).zip_archive as *mut ZipArchive);
-    zipper.add_file_from_slice(data_rs, archive_name_rs.to_string());
+    zipper.add_file_from_memory(data_rs, archive_name_rs.to_owned(), None, None, None, None);
     0
 }
 
@@ -86,7 +93,7 @@ unsafe extern "C" fn mtzip_zip_archive_add_directory(
         Err(_) => return -1,
     };
     let zipper = &*((*zip_archive).zip_archive as *mut ZipArchive);
-    zipper.add_directory(archive_name_rs.to_string());
+    zipper.add_directory(archive_name_rs.to_owned(), None);
     0
 }
 
@@ -124,12 +131,15 @@ unsafe extern "C" fn mtzip_zip_archive_write(
         Ok(v) => v,
         Err(_) => return -1,
     };
-    if threads == 0 {
-        zipper.write_with_threads(&mut file, 1);
+    let result = if threads == 0 {
+        zipper.write_with_threads(&mut file, 1)
     } else {
-        zipper.write_with_threads(&mut file, threads);
+        zipper.write_with_threads(&mut file, threads)
+    };
+    match result {
+        Ok(()) => 0,
+        Err(_) => -1,
     }
-    0
 }
 
 #[no_mangle]
@@ -146,8 +156,10 @@ unsafe extern "C" fn mtzip_zip_archive_write_autothread(
         Ok(v) => v,
         Err(_) => return -1,
     };
-    zipper.write(&mut file);
-    0
+    match zipper.write(&mut file) {
+        Ok(()) => 0,
+        Err(_) => -1,
+    }
 }
 
 #[no_mangle]
